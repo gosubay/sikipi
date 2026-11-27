@@ -15,6 +15,7 @@
 <button type="button" data-tab="play" aria-current="page">Play vs Computer</button>
 <button type="button" data-tab="calculate">Calculate</button>
 <button type="button" data-tab="findings">Findings</button>
+<button type="button" data-tab="rules">Rules</button>
 </nav>
 <section id="settings" aria-label="House rules">
 <label><input type="checkbox" id="gong" checked> 2–8 Gong</label>
@@ -46,6 +47,36 @@
 <section id="findings" class="panel" hidden>
 <div class="panel-heading"><div><h2>What the numbers say</h2><p>Exact odds for every starting hand, plus simulated sessions.</p></div></div>
 <div id="research" aria-live="polite"></div>
+</section>
+<section id="rules" class="panel" aria-labelledby="rules-heading" hidden>
+<div class="panel-heading"><div><h2 id="rules-heading">How to play Si Ki Pi</h2><p>Singapore CNY house rules used in this game.</p></div></div>
+
+<section class="rules-block">
+<h3>Split four cards into two hands</h3>
+<p>You and the banker each get four cards from a standard 52-card deck. Make two two-card hands. Put your weaker hand on top and your stronger hand below. Both hands can have the same score.</p>
+</section>
+
+<section class="rules-block">
+<h3>Rank each two-card hand</h3>
+<ol class="rules-ranking">
+<li><strong>Pairs are strongest.</strong> A-A is highest, followed by K-K down to 2-2. Suits have no effect on rank.</li>
+<li><strong>2–8 Gong beats any ordinary point hand.</strong> With Gong on, a 2 and an 8 beat 9 points but lose to every pair. With Gong off, they score 0.</li>
+<li><strong>Ordinary hands score 0–9.</strong> Aces count as 1, cards 2–9 count at face value, and 10, J, Q and K count as 0. Add the two values and keep the last digit. For example, 7 + 6 scores 3 and K + 9 scores 9.</li>
+</ol>
+</section>
+
+<section class="rules-block">
+<h3>Compare hands with the banker</h3>
+<p>Compare weak against weak and strong against strong. Beat the banker on both sides to earn <strong>+1</strong> point. Win one side and lose the other for a <strong>0</strong>-point push. Lose both sides and score <strong>−1</strong> point.</p>
+<p>By default, the banker takes any tied side. If you select <strong>Round pushes</strong>, a tie on either side makes the whole round worth 0.</p>
+</section>
+
+<section class="rules-block">
+<h3>Example round</h3>
+<p>You have <strong>2, 8, K, 9</strong>. With Gong on, put K + 9 (9 points) on top and 2 + 8 (Gong) below. If the banker has 7 points on top and a pair of 4s below, you win the weak side and lose the strong side. The round is a push.</p>
+</section>
+
+<p class="meta notice">This preset uses points and omits suit bonuses, Bobo and Jin Gang payouts.</p>
 </section>
 <footer>Singapore CNY preset · Points only · Based on your selected house rules</footer>
 </main>

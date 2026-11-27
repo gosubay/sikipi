@@ -16,7 +16,7 @@ button:hover:not(:disabled){border-color:var(--gold)}
 button:disabled{opacity:.5;cursor:default}
 :focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 [hidden]{display:none!important}
-nav{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:6px;margin-bottom:14px}
+nav{display:grid;grid-template-columns:1.4fr 1fr 1fr .75fr;gap:6px;margin-bottom:14px}
 nav button{background:transparent;padding:8px 5px}
 nav [aria-current]{background:var(--gold);color:#1e281f;border-color:var(--gold);font-weight:700}
 #settings{display:flex;align-items:center;gap:12px 20px;flex-wrap:wrap;margin-bottom:14px;border:1px solid var(--line);border-radius:12px;padding:10px 14px;color:var(--muted)}
@@ -56,6 +56,10 @@ h3{font-size:18px}
 .research-block{margin-top:22px}
 .research-block ul,.research-block ol{padding-left:21px;margin:8px 0}
 .research-block li{margin:7px 0}
+.rules-block + .rules-block{margin-top:20px}
+.rules-block p,.rules-ranking{margin-top:7px}
+.rules-ranking{padding-left:22px;margin-bottom:0}
+.rules-ranking li + li{margin-top:7px}
 .table-wrap{overflow:auto}
 table{width:100%;border-collapse:collapse;margin:8px 0;font-variant-numeric:tabular-nums}
 th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
