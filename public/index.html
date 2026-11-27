@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Play Si Ki Pi, compare exact odds for any four cards, and explore the best ways to split your hand.">
+<title>Si Ki Pi | Play &amp; Calculate</title>
+<link rel="stylesheet" href="./style.css">
+<script type="module" src="./app.mjs"></script>
+</head>
+<body>
+<main>
+<header><div><h1>Si Ki Pi <span lang="zh">四支配</span></h1><p>Split four cards into two hands. Beat the banker on both sides.</p></div><div class="motif" aria-hidden="true">♠</div></header>
+<nav aria-label="Game modes">
+<button type="button" data-tab="play" aria-current="page">Play vs Computer</button>
+<button type="button" data-tab="calculate">Calculate</button>
+<button type="button" data-tab="findings">Findings</button>
+</nav>
+<section id="settings" aria-label="House rules">
+<label><input type="checkbox" id="gong" checked> 2–8 Gong</label>
+<label>Ties <select id="ties"><option value="banker">Banker takes the side</option><option value="push">Round pushes</option></select></label>
+<details><summary>Banker style</summary><select id="banker" aria-label="Banker strategy"><option value="weak">Maximize weak hand</option><option value="strong">Maximize strong hand</option><option value="mixed">50/50 mix</option></select></details>
+</section>
+<section id="play" class="panel">
+<div class="panel-heading"><div><h2>Set your hand</h2><p>Drag a card, or tap a card and then a slot.</p></div><button id="reset" class="quiet">Reset score</button></div>
+<div id="tally" class="tally" aria-live="polite"></div>
+<div class="table">
+<div id="tray" class="cards" aria-label="Dealt cards"></div>
+<div class="hand-row"><span>Weak</span><div id="play-weak" class="cards"></div></div>
+<div class="hand-row"><span>Strong</span><div id="play-strong" class="cards"></div></div>
+</div>
+<div class="actions"><button id="lock" class="primary" disabled>Lock in</button><button id="next" class="primary" hidden>Deal next hand</button><p id="play-message" role="status"></p></div>
+<div id="reveal" hidden></div>
+</section>
+<section id="calculate" class="panel" hidden>
+<div class="panel-heading"><div><h2>Find your best split</h2><p>Type a rank, tap a rank below, or drag it into a slot.</p></div><button id="clear" class="quiet">Clear cards</button></div>
+<div id="inputs" class="cards">
+<input aria-label="Card 1 rank" maxlength="2" autocomplete="off" placeholder="–">
+<input aria-label="Card 2 rank" maxlength="2" autocomplete="off" placeholder="–">
+<input aria-label="Card 3 rank" maxlength="2" autocomplete="off" placeholder="–">
+<input aria-label="Card 4 rank" maxlength="2" autocomplete="off" placeholder="–">
+</div>
+<div id="picker" class="picker" aria-label="Card ranks"></div>
+<div id="calculation" aria-live="polite"></div>
+</section>
+<section id="findings" class="panel" hidden>
+<div class="panel-heading"><div><h2>What the numbers say</h2><p>Exact odds for every starting hand, plus simulated sessions.</p></div></div>
+<div id="research" aria-live="polite"></div>
+</section>
+<footer>Singapore CNY preset · Points only · Based on your selected house rules</footer>
+</main>
+</body>
+</html>
+
