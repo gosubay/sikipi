@@ -8,6 +8,8 @@ for (const gong of [true,false]) for (const ties of ["banker","push"]) {
   }]));
   const hands = new Map();
   let shared = 0;
+  const compareTieRules = gong && ties === "banker";
+  let tieRulesChangeBest = 0;
   const breakdown = Object.fromEntries(["weak","strong"].map(style => [style,{pair:[0,0],gong:[0,0],points:[0,0]}]));
   for (const {hand,multiplicity} of patterns) {
     const solutions = exactForStyles(hand,gong,ties);
@@ -20,6 +22,13 @@ for (const gong of [true,false]) for (const ties of ["banker","push"]) {
     const common = solutions.weak.some(option => option.net === solutions.weak[0].net &&
       solutions.strong.some(other => other.net === solutions.strong[0].net && other.high === option.high && other.low === option.low));
     if (common) shared += multiplicity;
+    if (compareTieRules) {
+      const bankerRows = solutions.mixed;
+      const pushRows = exactForStyles(hand,gong,"push").mixed;
+      const sameBest = bankerRows.some(option => option.net === bankerRows[0].net &&
+        pushRows.some(other => other.net === pushRows[0].net && other.high === option.high && other.low === option.low));
+      if (!sameBest) tieRulesChangeBest += multiplicity;
+    }
     for (const [style,rows] of Object.entries(solutions)) {
       const ev = ({high,low}) => rows.find(row => row.high === high && row.low === low).ev;
       const row = study[style];
@@ -40,7 +49,8 @@ for (const gong of [true,false]) for (const ties of ["banker","push"]) {
     for (const stat of Object.keys(row)) row[stat] /= 270725;
   }
   const scenario = {gong,ties, study, shared:shared/270725, breakdown};
-  if (gong && ties === "banker") {
+  if (compareTieRules) {
+    scenario.tieRulesChangeBest = tieRulesChangeBest/270725;
     let seed = 20261127;
     const random = () => {
       seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;

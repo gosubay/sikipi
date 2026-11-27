@@ -56,6 +56,7 @@
         ]
       }
     },
+    "tieRulesChangeBest": 0.10460799704497184,
     "session": {
       "sessions": 20000,
       "outcomes": {

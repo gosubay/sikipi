@@ -259,7 +259,7 @@ function tipExample(title, top, bottom, ev) {
 async function showFindings() {
   try {
     if (!findings) {
-      const response = await fetch("./findings.json");
+      const response = await fetch("./findings.json?v=tie-strategy");
       if (!response.ok) throw new Error("Data unavailable");
       findings = await response.json();
     }
@@ -269,23 +269,25 @@ async function showFindings() {
     const session = baseline.session;
     const weakPoints = baseline.breakdown.weak.points;
     const strongPoints = baseline.breakdown.strong.points;
-    const weakGong = baseline.breakdown.weak.gong;
-    const strongGong = baseline.breakdown.strong.gong;
+    const tieHand = ["6","7","9","10"].map(rank => ranks.indexOf(rank));
+    const tieExamples = [
+      {title:"Banker takes ties", ...exact(tieHand,true,"banker","mixed")[0]},
+      {title:"Any tie pushes", ...exact(tieHand,true,"push","mixed")[0]},
+    ];
     $("research").innerHTML = `
       <section class="research-block"><h3 class="tips-heading"><svg class="tips-icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="8" y="4" width="11" height="15" rx="2"/><path d="M5 8v11a3 3 0 0 0 3 3h7m-3-10 1.5-2 1.5 2-1.5 2z"/></svg>How to set your hand</h3>
-      <p class="meta">Gong on · Banker takes ties · Even-money scoring</p>
+      <p class="meta">Gong on · Even-money scoring</p>
       <ol class="strategy-tips" role="list">
-      <li><h4>Keep two pairs together</h4>
-      <div class="tip-examples">${tipExample("Keep both pairs", ["3","3"], ["Q","Q"])}</div></li>
-      <li><h4>Make Gong when there’s no pair</h4>
-      <p>Best in ${percent(weakGong[1]/weakGong[0])} of eligible hands against the weak-hand banker and ${percent(strongGong[1]/strongGong[0])} against the strong-hand banker.</p>
-      <div class="tip-examples">${tipExample("Put Gong in back", ["K","9"], ["2","8"])}</div></li>
-      <li><h4>Usually keep a single pair</h4>
-      <p>Sometimes breaking it improves the front enough to gain EV. Here’s A–2–8–8 against the weak-hand banker.</p>
+      <li><h4>Break a pair for Gong when it upgrades the front enough</h4>
+      <p>With banker taking ties, break 2–2 if Gong leaves at least 5 points in front. Break 8–8 if it leaves at least 7. Both cutoffs held against both banker styles. Here’s A–2–8–8 against the weak-hand banker.</p>
       <div class="tip-examples">${baseline.example.map((option, i) => tipExample(i === 0 ? "Break the pair" : "Keep the pair", option.top, option.bottom, option.ev)).join("")}</div></li>
       <li><h4>Adjust ordinary point hands to the banker</h4>
-      <p>Maximize your back against a weak-hand banker (${percent(weakPoints[1]/weakPoints[0])} best) and your front against a strong-hand banker (${percent(strongPoints[1]/strongPoints[0])} best).</p>
+      <p>With banker taking ties, maximize your back against a weak-hand banker (${percent(weakPoints[1]/weakPoints[0])} best) and your front against a strong-hand banker (${percent(strongPoints[1]/strongPoints[0])} best).</p>
       <div class="tip-examples">${tipExample("Vs. weak-hand banker", ["A","K"], ["3","6"])}${tipExample("Vs. strong-hand banker", ["A","3"], ["6","K"])}</div></li>
+      <li><h4>Check what a tied row is worth</h4>
+      <p>When the banker takes ties, a tied row goes to the banker. When any tied row pushes the round, it can save you even if you lose the other row. Switching rules forces a different best split on ${percent(baseline.tieRulesChangeBest)} of deals against the 50/50 banker.</p>
+      <p>With 6–7–9–10, switch from 6 front / 6 back to 3 front / 9 back. A tied 9 can now save the round. Each diagram shows the best split and EV under its own tie rule.</p>
+      <div class="tip-examples">${tieExamples.map(({title, top, bottom, ev}) => tipExample(title, top.map(rank => ranks[rank]), bottom.map(rank => ranks[rank]), ev)).join("")}</div></li>
       </ol></section>
       <section class="research-block"><h3>Strategy matchups</h3>
       <p>Under the selected rules, both banker styles share an optimal split on ${percent(row.shared)} of deals. EV is points per deal.</p>
