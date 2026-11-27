@@ -193,6 +193,13 @@ $("clear").onclick = () => {
   calculate();
 };
 
+function splitRow(label, cards, value) {
+  return `<div class="split-row">
+    <div><strong>${label}</strong><span class="split-rating">${rating(value)}</span></div>
+    <div class="split-cards">${cards.map(rank => `<span class="card split-card">${ranks[rank]}</span>`).join("")}</div>
+  </div>`;
+}
+
 function calculate() {
   const values = inputs.map(normalized);
   const hand = values.map(value => ranks.indexOf(value));
@@ -206,11 +213,20 @@ function calculate() {
   }
   const {gong,ties,style} = readSettings();
   const rows = exact(hand,gong,ties,style);
-  $("calculation").innerHTML = `<p class="meta">${styleNames[style]} · Exact odds across 194,580 possible banker hands</p>` +
-    rows.map(row => {
-      const best = row.net===rows[0].net;
-      return `<article class="arrangement ${best?"best":""}"><strong>${splitText(row)}</strong>${best?`<span class="best-label">Best EV</span>`:""}<p>${odds(row)}</p></article>`;
-    }).join("");
+  $("calculation").innerHTML = `<p class="meta">${styleNames[style]} · Exact odds across 194,580 possible banker hands</p>
+    <div class="split-options">${rows.map(row => {
+      const best = row.net === rows[0].net;
+      return `<article class="arrangement${best ? " best" : ""}">
+        ${splitRow("Front (weak)", row.top, row.low)}
+        ${splitRow("Back (strong)", row.bottom, row.high)}
+        <dl class="split-stats">
+          <div><dt>Win</dt><dd>${percent(row.win)}</dd></div>
+          <div><dt>Push</dt><dd>${percent(row.push)}</dd></div>
+          <div><dt>Loss</dt><dd>${percent(row.loss)}</dd></div>
+          <div class="split-ev"><dt>EV</dt><dd>${signed(row.ev)} pts/deal${best ? '<span class="best-label">Best EV</span>' : ""}</dd></div>
+        </dl>
+      </article>`;
+    }).join("")}</div>`;
 }
 
 async function showFindings() {
