@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="Play Si Ki Pi, compare exact odds for any four cards, and explore the best ways to split your hand.">
 <title>Si Ki Pi | Play &amp; Calculate</title>
-<link rel="stylesheet" href="./style.css?v=calculate-splits">
-<script type="module" src="./app.mjs?v=calculate-splits"></script>
+<link rel="stylesheet" href="./style.css?v=banker-reveal">
+<script type="module" src="./app.mjs?v=banker-reveal"></script>
 </head>
 <body>
 <main>
@@ -25,13 +25,24 @@
 <section id="play" class="panel">
 <div class="panel-heading"><div><h2>Set your hand</h2><p>Drag a card, or tap a card and then a slot.</p></div><button id="reset" class="quiet">Reset score</button></div>
 <div id="tally" class="tally" aria-live="polite"></div>
-<div class="table">
+<div class="table play-table">
+<p class="tray-label">Your dealt cards</p>
 <div id="tray" class="cards" aria-label="Dealt cards"></div>
-<div class="hand-row"><span>Weak</span><div id="play-weak" class="cards"></div></div>
-<div class="hand-row"><span>Strong</span><div id="play-strong" class="cards"></div></div>
+<div class="play-seats">
+  <div class="play-seat" role="group" aria-label="Your hand">
+    <h3>You</h3>
+    <div class="play-row"><div>Front <small id="player-low"></small></div><div id="play-weak" class="cards"></div></div>
+    <div class="play-row"><div>Back <small id="player-high"></small></div><div id="play-strong" class="cards"></div></div>
+  </div>
+  <div id="banker-hand" class="play-seat" role="group" aria-label="Computer’s face-down cards">
+    <h3><svg class="banker-avatar" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><circle class="avatar-bg" cx="16" cy="16" r="15"/><circle cx="16" cy="12" r="4.5"/><path d="M7.5 24a8.5 8.5 0 0 1 17 0z"/></svg>Computer</h3>
+    <div class="play-row"><div>Front <small id="banker-low"></small></div><div id="banker-weak" class="cards"></div></div>
+    <div class="play-row"><div>Back <small id="banker-high"></small></div><div id="banker-strong" class="cards"></div></div>
+  </div>
+</div>
 </div>
 <div class="actions"><button id="lock" class="primary" disabled>Lock in</button><button id="next" class="primary" hidden>Deal next hand</button><p id="play-message" role="status"></p></div>
-<div id="reveal" hidden></div>
+<div id="reveal" aria-live="polite"></div>
 </section>
 <section id="calculate" class="panel" hidden>
 <div class="panel-heading"><div><h2>Find your best split</h2><p>Type a rank, tap a rank below, or drag it into a slot.</p></div><button id="clear" class="quiet">Clear cards</button></div>

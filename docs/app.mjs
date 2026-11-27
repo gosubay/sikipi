@@ -25,7 +25,8 @@ function nextRound() {
     hand:cards.slice(0,4), banker:cards.slice(4), mixedStyle:Math.random()<.5?"weak":"strong",
     slots:Array(4).fill(null), selected:null, locked:false,
   };
-  $("reveal").hidden = true;
+  $("reveal").replaceChildren();
+  renderMatchup();
   $("lock").hidden = false;
   $("next").hidden = true;
   $("play-message").textContent = "";
@@ -43,8 +44,7 @@ function place(slot, card) {
   round.slots[slot] = card;
   round.selected = null;
   renderPlay();
-  $("play-weak").parentElement.querySelectorAll("button")[slot]?.focus({preventScroll:true});
-  if (slot >= 2) $("play-strong").children[slot-2].focus({preventScroll:true});
+  $(slot < 2 ? "play-weak" : "play-strong").children[slot % 2].focus({preventScroll:true});
 }
 
 function onDrop(element, type, handler) {
@@ -113,6 +113,19 @@ function renderPlay() {
   if (!round.locked) $("play-message").textContent = invalid ? "The weak row must rank at or below the strong row." : "";
 }
 
+function renderMatchup(player = null, banker = null) {
+  const bankerHand = $("banker-hand");
+  bankerHand.classList.toggle("is-revealed", Boolean(banker));
+  bankerHand.setAttribute("aria-label", banker ? "Computer’s revealed hand" : "Computer’s face-down cards");
+  const backs = '<span class="card banker-card banker-back" aria-hidden="true">♠</span>'.repeat(2);
+  $("banker-weak").innerHTML = banker ? cardFaces(banker.top, "banker-card") : backs;
+  $("banker-strong").innerHTML = banker ? cardFaces(banker.bottom, "banker-card") : backs;
+  $("banker-low").textContent = banker ? rating(banker.low) : "";
+  $("banker-high").textContent = banker ? rating(banker.high) : "";
+  $("player-low").textContent = player ? rating(player.low) : "";
+  $("player-high").textContent = player ? rating(player.high) : "";
+}
+
 function odds(row) {
   return `Win ${percent(row.win)} · Push ${percent(row.push)} · Loss ${percent(row.loss)} · EV ${signed(row.ev)} pts/deal`;
 }
@@ -131,14 +144,14 @@ $("lock").onclick = () => {
   tally.points += pay;
   tally[pay===1?"wins":pay===0?"pushes":"losses"]++;
   round.locked = true;
+  const isBest = pick.net === best.net;
+  renderMatchup(player, banker);
   $("reveal").innerHTML = `<div class="notice">
     <h3 class="result-title">${labels[pay]} · ${signed(pay,0)} pts</h3>
-    <p>Banker: ${splitText(banker)}</p>
-    <p>Your split: <strong>${signed(pick.ev)} EV</strong>${best.net===pick.net ? " · Best split" : ` · ${signed(best.ev-pick.ev)} EV left on the table`}</p>
-    ${best.net===pick.net ? "" : `<p>Best: ${splitText(best)} · ${signed(best.ev)} EV</p>`}
+    <p class="move-feedback${isBest ? " best-move" : ""}"><strong>${isBest ? "You picked a highest-EV move." : "You picked a lower-EV move."}</strong> Your split: ${signed(pick.ev)} pts/deal.</p>
+    ${isBest ? "" : `<p>Best split: ${splitText(best)} · ${signed(best.ev)} pts/deal (${signed(best.ev-pick.ev)} higher).</p>`}
     <details><summary>Show your pre-reveal odds</summary><p>${odds(pick)}</p><p class="meta">${styleNames[style]}</p></details>
     </div>`;
-  $("reveal").hidden = false;
   $("lock").hidden = true;
   $("next").hidden = false;
   renderPlay();
@@ -193,10 +206,14 @@ $("clear").onclick = () => {
   calculate();
 };
 
+function cardFaces(cards, className) {
+  return cards.map(rank => `<span class="card ${className}">${ranks[rank]}</span>`).join("");
+}
+
 function splitRow(label, cards, value) {
   return `<div class="split-row">
     <div><strong>${label}</strong><span class="split-rating">${rating(value)}</span></div>
-    <div class="split-cards">${cards.map(rank => `<span class="card split-card">${ranks[rank]}</span>`).join("")}</div>
+    <div class="split-cards">${cardFaces(cards, "split-card")}</div>
   </div>`;
 }
 
@@ -229,6 +246,16 @@ function calculate() {
     }).join("")}</div>`;
 }
 
+function tipExample(title, top, bottom, ev) {
+  const front = top.map(rank => ranks.indexOf(rank));
+  const back = bottom.map(rank => ranks.indexOf(rank));
+  return `<figure class="tip-example">
+    <figcaption>${title}${ev === undefined ? "" : `<span>${signed(ev)} EV</span>`}</figcaption>
+    ${splitRow("Front", front, score(...front, true))}
+    ${splitRow("Back", back, score(...back, true))}
+  </figure>`;
+}
+
 async function showFindings() {
   try {
     if (!findings) {
@@ -244,15 +271,21 @@ async function showFindings() {
     const strongPoints = baseline.breakdown.strong.points;
     const weakGong = baseline.breakdown.weak.gong;
     const strongGong = baseline.breakdown.strong.gong;
-    const example = baseline.example.map(option => `${option.bottom.join("–")} / ${option.top.join("–")} (${signed(option.ev)} EV)`).join(" versus ");
     $("research").innerHTML = `
-      <section class="research-block"><h3>How to set your hand</h3>
-      <p class="meta">Gong on, banker takes ties, even-money scoring</p>
-      <ol>
-      <li>Keep two pairs together.</li>
-      <li>With no pair available, make Gong. It was best in ${percent(weakGong[1]/weakGong[0])} and ${percent(strongGong[1]/strongGong[0])} of these hands against the two pure banker styles.</li>
-      <li>Usually keep a single pair. Check alternatives that substantially improve the weak side. With A–2–8–8 against the weak-hand banker, the splits are ${example}.</li>
-      <li>With ordinary point hands, maximize your strong side against a weak-hand banker (${percent(weakPoints[1]/weakPoints[0])} exact-best) and your weak side against a strong-hand banker (${percent(strongPoints[1]/strongPoints[0])} exact-best).</li>
+      <section class="research-block"><h3 class="tips-heading"><svg class="tips-icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="8" y="4" width="11" height="15" rx="2"/><path d="M5 8v11a3 3 0 0 0 3 3h7m-3-10 1.5-2 1.5 2-1.5 2z"/></svg>How to set your hand</h3>
+      <p class="meta">Gong on · Banker takes ties · Even-money scoring</p>
+      <ol class="strategy-tips" role="list">
+      <li><h4>Keep two pairs together</h4>
+      <div class="tip-examples">${tipExample("Keep both pairs", ["3","3"], ["Q","Q"])}</div></li>
+      <li><h4>Make Gong when there’s no pair</h4>
+      <p>Best in ${percent(weakGong[1]/weakGong[0])} of eligible hands against the weak-hand banker and ${percent(strongGong[1]/strongGong[0])} against the strong-hand banker.</p>
+      <div class="tip-examples">${tipExample("Put Gong in back", ["K","9"], ["2","8"])}</div></li>
+      <li><h4>Usually keep a single pair</h4>
+      <p>Sometimes breaking it improves the front enough to gain EV. Here’s A–2–8–8 against the weak-hand banker.</p>
+      <div class="tip-examples">${baseline.example.map((option, i) => tipExample(i === 0 ? "Break the pair" : "Keep the pair", option.top, option.bottom, option.ev)).join("")}</div></li>
+      <li><h4>Adjust ordinary point hands to the banker</h4>
+      <p>Maximize your back against a weak-hand banker (${percent(weakPoints[1]/weakPoints[0])} best) and your front against a strong-hand banker (${percent(strongPoints[1]/strongPoints[0])} best).</p>
+      <div class="tip-examples">${tipExample("Vs. weak-hand banker", ["A","K"], ["3","6"])}${tipExample("Vs. strong-hand banker", ["A","3"], ["6","K"])}</div></li>
       </ol></section>
       <section class="research-block"><h3>Strategy matchups</h3>
       <p>Under the selected rules, both banker styles share an optimal split on ${percent(row.shared)} of deals. EV is points per deal.</p>
