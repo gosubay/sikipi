@@ -1,5 +1,5 @@
 import { writeFileSync } from "node:fs";
-import { bankerSplit, deal, exactForStyles, key, patterns, ranks, result, splits } from "./public/solver.mjs";
+import { bankerSplit, deal, exactForStyles, key, patterns, ranks, result, splits } from "./docs/solver.mjs";
 
 const scenarios = [];
 for (const gong of [true,false]) for (const ties of ["banker","push"]) {
@@ -68,5 +68,5 @@ for (const gong of [true,false]) for (const ties of ["banker","push"]) {
   console.log("Completed", gong ? "Gong on" : "Gong off", ties);
   scenarios.push(scenario);
 }
-writeFileSync(new URL("./public/findings.json",import.meta.url),JSON.stringify(scenarios,null,2)+"\n");
+writeFileSync(new URL("./docs/findings.json",import.meta.url),JSON.stringify(scenarios,null,2)+"\n");
 
